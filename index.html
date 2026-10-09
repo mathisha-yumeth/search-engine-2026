@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seekr</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔎</text></svg>">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="home">
+<header class="top">
+  <a class="logo" href="./" aria-label="Seekr home">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+    <span>Seekr</span>
+  </a>
+  <form id="form" class="searchbox" role="search" autocomplete="off">
+    <input id="q" type="search" placeholder="Search the web, datasets, code and papers" aria-label="Search" autofocus>
+    <button type="submit" aria-label="Search">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+    </button>
+  </form>
+  <button id="theme" class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+</header>
+
+<nav id="tabs" class="tabs" hidden>
+  <button data-tab="all" class="on">All</button>
+  <button data-tab="datasets">Datasets</button>
+  <button data-tab="code">Code</button>
+  <button data-tab="papers">Papers</button>
+</nav>
+
+<main>
+  <section id="hero" class="hero">
+    <h1>Find it. Skip the sign-up.</h1>
+    <p>Web pages, open datasets, code and papers in one search, with a short summary written in your browser.</p>
+    <div class="chips">
+      <button data-s="climate change dataset">climate change dataset</button>
+      <button data-s="large language models">large language models</button>
+      <button data-s="sri lanka">sri lanka</button>
+      <button data-s="image classification">image classification</button>
+    </div>
+  </section>
+
+  <div id="layout" class="layout" hidden>
+    <div class="col">
+      <section id="summary" class="summary" hidden></section>
+      <div id="status" class="status" aria-live="polite"></div>
+      <ol id="results" class="results"></ol>
+    </div>
+    <aside id="side" class="side"></aside>
+  </div>
+</main>
+
+<footer>Results come from Marginalia, Wikipedia, Hugging Face, data.gov, GitHub and Crossref. No keys, no tracking.</footer>
+<script src="app.js"></script>
+</body>
+</html>
