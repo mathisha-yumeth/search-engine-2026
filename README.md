@@ -12,7 +12,7 @@ Ask a question about the search results to generate a research brief with FLAN-T
 Search queries are sent directly to the public source APIs listed above. Those services have their own availability, rate limits, and privacy policies. Generated answers are based only on the returned excerpts; verify claims against the linked sources.
 
 ## Run locally
-Serve the folder (opening index.html directly as a file can block some requests):
+Serve the folder (opening index.html directly as a file can block some requests):  https://mathisha-yumeth.github.io/search-engine-2026/
 
     python3 -m http.server 8000
 
