@@ -32,7 +32,7 @@
 <main>
   <section id="hero" class="hero">
     <h1>Find it. Skip the sign-up.</h1>
-    <p>Web pages, open datasets, code and papers in one search, with a short summary written in your browser.</p>
+    <p>Search open web sources, datasets, code and papers, then ask an on-device model to research the results.</p>
     <div class="chips">
       <button data-s="climate change dataset">climate change dataset</button>
       <button data-s="large language models">large language models</button>
@@ -43,7 +43,27 @@
 
   <div id="layout" class="layout" hidden>
     <div class="col">
-      <section id="summary" class="summary" hidden></section>
+      <section id="summary" class="summary" hidden aria-labelledby="research-title">
+        <div class="summary-head">
+          <div>
+            <span class="eyebrow">ON-DEVICE RESEARCH</span>
+            <h2 id="research-title">Ask the search results</h2>
+          </div>
+          <span class="local-badge">Runs in your browser</span>
+        </div>
+        <form id="ask-form" class="ask-form">
+          <label class="sr-only" for="research-question">Ask a question about these results</label>
+          <input id="research-question" type="search" maxlength="240" placeholder="Ask a question about these results">
+          <button id="ask-button" type="submit">Research</button>
+        </form>
+        <p id="ai-status" class="ai-status" role="status" aria-live="polite">The first run downloads a small model; your browser caches it for next time.</p>
+        <p id="ai-answer" class="ai-answer" hidden></p>
+        <div id="ai-sources" class="ai-sources" hidden></div>
+        <details class="quick-read">
+          <summary>Quick read from the sources</summary>
+          <div id="quick-summary"></div>
+        </details>
+      </section>
       <div id="status" class="status" aria-live="polite"></div>
       <ol id="results" class="results"></ol>
     </div>
@@ -51,7 +71,7 @@
   </div>
 </main>
 
-<footer>Results come from Marginalia, Wikipedia, Hugging Face, data.gov, GitHub and Crossref. No keys, no tracking.</footer>
+<footer>Search runs through public APIs. Research answers run locally in your browser; model files are downloaded from Hugging Face.</footer>
 <script src="app.js"></script>
 </body>
 </html>

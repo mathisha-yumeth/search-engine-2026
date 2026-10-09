@@ -106,7 +106,9 @@ function summarise(texts, n = 4) {
 }
 
 /* ---------- UI ---------- */
-let state = { q: "", tab: "all", cache: {} };
+let state = { q: "", tab: "all", cache: {}, items: [] };
+let researchWorker = null;
+let researchRequestId = 0;
 
 function setLayoutMode(searching) {
   document.body.classList.toggle("home", !searching);
@@ -141,6 +143,7 @@ async function _run(q, tab) {
     return [];
   });
   let items = interleave(lists);
+  state.items = items;
 
   if (!items.length) {
     $("#status").innerHTML = failed.length
@@ -181,16 +184,80 @@ function renderSummary(items, q) {
   const wiki = items.filter(i => i.full).slice(0, 2).map(i => i.full);
   const others = items.filter(i => !i.full).slice(0, 8).map(i => i.title + ". " + i.snippet);
   const bullets = summarise([...wiki, ...others], 4);
-  if (!bullets.length) return;
+  const el = $("#summary");
+  $("#research-question").value = q;
+  $("#ai-status").textContent = "The first run downloads a small model; your browser caches it for next time.";
+  $("#ai-answer").hidden = true;
+  $("#ai-answer").textContent = "";
+  $("#ai-sources").hidden = true;
+  $("#ai-sources").innerHTML = "";
+  $("#ask-button").disabled = false;
+  if (!bullets.length) {
+    $("#quick-summary").textContent = "There is not enough source text for a quick summary. You can still ask the local model about the results.";
+    el.hidden = false;
+    return;
+  }
   const srcLinks = [...new Set(bullets.map(b => b.ti))].map(ti => {
     const it = ti < wiki.length ? items.filter(i => i.full)[ti] : items.filter(i => !i.full)[ti - wiki.length];
     return it ? `<a href="${esc(it.url)}" target="_blank" rel="noopener noreferrer">${esc(host(it.url))}</a>` : "";
   }).filter(Boolean);
-  const el = $("#summary");
-  el.innerHTML = `<h2>✨ Summary <small>for “${esc(q)}”</small></h2>
-    <ul>${bullets.map(b => `<li>${esc(b.s)}</li>`).join("")}</ul>
-    <div class="src">Built on your device from top results · Sources: ${srcLinks.join(", ")}</div>`;
+  $("#quick-summary").innerHTML = `<ul>${bullets.map(b => `<li>${esc(b.s)}</li>`).join("")}</ul>
+    <div class="src">Sentence-ranked from search results · Sources: ${srcLinks.join(", ")}</div>`;
   el.hidden = false;
+}
+
+function getResearchWorker() {
+  if (researchWorker) return researchWorker;
+  researchWorker = new Worker("./ai-worker.js", { type: "module" });
+  researchWorker.addEventListener("message", event => {
+    const data = event.data;
+    if (data.id !== researchRequestId) return;
+    if (data.type === "progress") {
+      $("#ai-status").textContent = data.message;
+      return;
+    }
+    $("#ask-button").disabled = false;
+    if (data.type === "answer") {
+      $("#ai-answer").textContent = data.text;
+      $("#ai-answer").hidden = false;
+      const sources = state.items.slice(0, 5);
+      $("#ai-sources").innerHTML = `<h3>Sources</h3><ol>${sources.map((item, index) =>
+        `<li><a href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">[${index + 1}] ${esc(item.title)}</a></li>`
+      ).join("")}</ol>`;
+      $("#ai-sources").hidden = false;
+      $("#ai-status").textContent = "Generated in your browser from the search excerpts below. Check sources for details.";
+    } else if (data.type === "error") {
+      $("#ai-status").textContent = `The local model could not run: ${data.message}. Check your connection and try again.`;
+    }
+  });
+  researchWorker.addEventListener("error", event => {
+    $("#ask-button").disabled = false;
+    $("#ai-status").textContent = "The local model worker failed to start. Reload the page and try again.";
+    console.error(event.message);
+    researchWorker.terminate();
+    researchWorker = null;
+  });
+  return researchWorker;
+}
+
+function research(question) {
+  const excerpts = state.items.slice(0, 5).map(item => ({
+    title: item.title,
+    url: item.url,
+    snippet: (item.full || item.snippet || "").slice(0, 500)
+  }));
+  if (!excerpts.length) return;
+  const id = ++researchRequestId;
+  $("#ask-button").disabled = true;
+  $("#ai-answer").hidden = true;
+  $("#ai-sources").hidden = true;
+  $("#ai-status").textContent = "Starting the local model. The first run may take a few minutes while files download.";
+  try {
+    getResearchWorker().postMessage({ type: "research", id, question, excerpts });
+  } catch (error) {
+    $("#ask-button").disabled = false;
+    $("#ai-status").textContent = `The local model could not start: ${error.message}`;
+  }
 }
 
 function renderSide(items) {
@@ -206,6 +273,11 @@ function renderSide(items) {
 
 /* ---------- wiring ---------- */
 $("#form").addEventListener("submit", e => { e.preventDefault(); run($("#q").value, "all"); });
+$("#ask-form").addEventListener("submit", e => {
+  e.preventDefault();
+  const question = $("#research-question").value.trim();
+  if (question) research(question);
+});
 $("#tabs").addEventListener("click", e => { const b = e.target.closest("button"); if (b && state.q) run(state.q, b.dataset.tab); });
 document.querySelector(".chips").addEventListener("click", e => { const b = e.target.closest("button"); if (b) run(b.dataset.s, "all"); });
 
