@@ -70,7 +70,7 @@ const sources = {
 };
 
 const tabSources = {
-  all: ["wikipedia", "marginalia", "hn"],
+  all: ["marginalia", "wikipedia", "hn", "huggingface", "datagov", "github", "crossref"],
   datasets: ["huggingface", "datagov"],
   code: ["github"],
   papers: ["crossref"]
@@ -128,22 +128,40 @@ async function _run(q, tab) {
   document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
   setLayoutMode(true);
   $("#results").innerHTML = "";
+  state.items = [];
+  renderSide([], q);
   $("#summary").hidden = true;
   $("#side").innerHTML = "";
   $("#status").textContent = "Searching…";
 
   const names = tabSources[tab];
-  const settled = await Promise.allSettled(names.map(n => sources[n](q)));
-  if (state.q !== q || state.tab !== tab) return;
-
+  const lists = names.map(() => []);
   const failed = [], reasons = [];
-  const lists = settled.map((r, i) => {
-    if (r.status === "fulfilled") return r.value;
-    failed.push(names[i]); reasons.push(`${names[i]}: ${r.reason?.name === "AbortError" ? "timed out" : (r.reason?.message || "blocked")}`);
-    return [];
-  });
-  let items = interleave(lists);
-  state.items = items;
+  let completed = 0;
+  const isCurrent = () => state.q === q && state.tab === tab;
+  const updateResults = () => {
+    if (!isCurrent()) return;
+    const items = interleave(lists);
+    state.items = items;
+    $("#results").innerHTML = items.map(resultHTML).join("");
+    const progress = completed < names.length ? ` · ${completed}/${names.length} sources checked` : "";
+    const unavailable = failed.length ? ` (unavailable: ${failed.join(", ")})` : "";
+    $("#status").textContent = `${items.length} results${progress}${unavailable}`;
+    renderSide(items, q);
+  };
+
+  await Promise.all(names.map(async (name, index) => {
+    try {
+      lists[index] = await sources[name](q);
+    } catch (error) {
+      failed.push(name);
+      reasons.push(`${name}: ${error?.name === "AbortError" ? "timed out" : (error?.message || "blocked")}`);
+    }
+    completed += 1;
+    updateResults();
+  }));
+  if (!isCurrent()) return;
+  const items = state.items;
 
   if (!items.length) {
     $("#status").innerHTML = failed.length
@@ -151,13 +169,12 @@ async function _run(q, tab) {
       : `No results for <b>${esc(q)}</b>. Try fewer or different words.`;
     return;
   }
-  $("#status").textContent = `${items.length} results` + (failed.length ? ` (unavailable: ${failed.join(", ")})` : "");
-  $("#results").innerHTML = items.map(resultHTML).join("");
+  $("#status").textContent = `${items.length} results from ${names.length} sources` + (failed.length ? ` (unavailable: ${failed.join(", ")})` : "");
 
   if (tab === "all") {
     renderSummary(items, q);
-    renderSide(items);
   }
+  renderSide(items, q);
 }
 
 function interleave(lists) {
@@ -260,15 +277,26 @@ function research(question) {
   }
 }
 
-function renderSide(items) {
+function renderSide(items, q) {
+  const encoded = encodeURIComponent(q);
+  const webLinks = [
+    ["DuckDuckGo", `https://duckduckgo.com/?q=${encoded}`],
+    ["Google", `https://www.google.com/search?q=${encoded}`],
+    ["Bing", `https://www.bing.com/search?q=${encoded}`],
+    ["Brave", `https://search.brave.com/search?q=${encoded}`]
+  ];
   const w = items.find(i => i.source === "Wikipedia");
-  if (!w) return;
-  $("#side").innerHTML = `<div class="card">
+  $("#side").innerHTML = `<section class="web-search">
+    <span class="eyebrow">WIDER WEB</span>
+    <h2>Search more websites</h2>
+    <div class="web-links">${webLinks.map(([name, url]) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${name}<span aria-hidden="true">↗</span></a>`).join("")}</div>
+  </section>`;
+  if (w) $("#side").insertAdjacentHTML("beforeend", `<div class="card">
     ${w.thumb ? `<img src="${esc(w.thumb)}" alt="">` : ""}
     <h2>${esc(w.title)}</h2><div class="sub">from Wikipedia</div>
     <p>${esc((w.full || "").split(/(?<=[.!?])\s/).slice(0, 3).join(" "))}</p>
     <a href="${esc(w.url)}" target="_blank" rel="noopener noreferrer">Read on Wikipedia</a>
-  </div>`;
+  </div>`);
 }
 
 /* ---------- wiring ---------- */

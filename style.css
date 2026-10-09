@@ -1,26 +1,31 @@
 [hidden]{display:none!important}
 :root{
-  --bg:#fff; --panel:#fff; --soft:#f3f6fb; --text:#1b1b1f; --muted:#5f6368;
-  --link:#1a0dab; --url:#107c10; --accent:#0f6cbd; --accent2:#0a4f8f;
-  --line:#e1e5ec; --shadow:0 2px 10px rgba(20,30,60,.12);
-  --sum1:#eaf3ff; --sum2:#edf7f0;
+  color-scheme:light;
+  --bg:#eef5f4; --panel:rgba(255,255,255,.62); --soft:rgba(255,255,255,.5); --text:#18252a; --muted:#5d6b70;
+  --link:#075f78; --url:#267654; --accent:#087f8c; --accent2:#05616f;
+  --line:rgba(65,103,112,.2); --shadow:0 14px 40px rgba(31,70,78,.1);
+  --glass:rgba(255,255,255,.55); --glass-strong:rgba(255,255,255,.74);
+  --sum1:rgba(222,242,244,.74); --sum2:rgba(235,246,235,.68);
 }
 :root[data-theme="dark"]{
-  --bg:#1b1c20; --panel:#25272d; --soft:#2b2e36; --text:#ececf0; --muted:#a6abb6;
-  --link:#8ab4f8; --url:#6fcf6f; --accent:#4aa3ff; --accent2:#8ab4f8;
-  --line:#383b44; --shadow:0 2px 10px rgba(0,0,0,.5);
-  --sum1:#1f2c40; --sum2:#20332d;
+  color-scheme:dark;
+  --bg:#131d21; --panel:rgba(34,49,54,.72); --soft:rgba(51,71,76,.65); --text:#eaf2f1; --muted:#a3b4b5;
+  --link:#8adce1; --url:#88d3a4; --accent:#5dd2cc; --accent2:#a6e9df;
+  --line:rgba(184,220,218,.19); --shadow:0 14px 40px rgba(0,0,0,.25);
+  --glass:rgba(35,53,58,.62); --glass-strong:rgba(35,53,58,.82);
+  --sum1:rgba(35,75,82,.7); --sum2:rgba(44,73,59,.68);
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{font:15px/1.5 "Segoe UI","Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+body{font:15px/1.5 "Segoe UI","Helvetica Neue",Arial,sans-serif;background:linear-gradient(125deg,#e6f1f5 0%,#f2f7f2 48%,#e8f2eb 100%);background-attachment:fixed;color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+:root[data-theme="dark"] body{background:linear-gradient(125deg,#132128 0%,#172522 52%,#20291f 100%)}
 a{color:var(--link);text-decoration:none}
 a:hover{text-decoration:underline}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-.top{display:flex;align-items:center;gap:28px;padding:14px 28px;position:relative}
+.top{display:flex;align-items:center;gap:28px;padding:14px 28px;position:relative;background:var(--glass);border-bottom:1px solid var(--line);backdrop-filter:blur(18px) saturate(145%);-webkit-backdrop-filter:blur(18px) saturate(145%)}
 .logo{display:flex;align-items:center;gap:8px;color:var(--accent);font-weight:600;font-size:22px;letter-spacing:-.3px;text-decoration:none!important}
-.searchbox{flex:1;max-width:640px;display:flex;background:var(--panel);border:1px solid var(--line);border-radius:26px;box-shadow:var(--shadow);overflow:hidden}
+.searchbox{flex:1;max-width:640px;display:flex;background:var(--glass-strong);border:1px solid rgba(255,255,255,.7);border-radius:26px;box-shadow:0 12px 34px rgba(25,76,85,.14),inset 0 1px 0 rgba(255,255,255,.72);backdrop-filter:blur(22px) saturate(165%);-webkit-backdrop-filter:blur(22px) saturate(165%);overflow:hidden}
 .searchbox:focus-within{border-color:var(--accent)}
 .searchbox input{flex:1;border:0;background:transparent;color:var(--text);font:inherit;font-size:16px;padding:12px 20px;outline:none;min-width:0}
 .searchbox button{border:0;background:transparent;color:var(--accent);padding:0 18px;cursor:pointer}
@@ -42,14 +47,15 @@ main{flex:1;padding:0 28px 40px}
 .hero{text-align:center;max-width:620px;margin:18px auto}
 .hero h1{font-size:26px;margin:0 0 6px;font-weight:600;letter-spacing:-.3px}
 .hero p{color:var(--muted);margin:0 0 18px}
+.examples-label{font-size:12px;font-weight:600;color:var(--muted);margin:22px 0 9px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
-.chips button{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:18px;padding:6px 14px;font:inherit;cursor:pointer}
-.chips button:hover{border-color:var(--accent);color:var(--accent)}
+.chips button{border:1px solid rgba(255,255,255,.78);background:var(--glass);color:var(--text);border-radius:999px;padding:7px 14px;font:inherit;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 5px 16px rgba(40,77,83,.06);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:transform .16s ease,border-color .16s ease,background .16s ease}
+.chips button:hover{transform:translateY(-2px);border-color:var(--accent);background:var(--glass-strong);color:var(--accent)}
 
 .layout{display:grid;grid-template-columns:minmax(0,640px) 340px;gap:48px;margin-top:18px}
 .status{color:var(--muted);font-size:13px;margin:4px 0 12px}
 
-.summary{background:linear-gradient(135deg,var(--sum1),var(--sum2));border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:18px}
+.summary{background:linear-gradient(135deg,var(--sum1),var(--sum2));border:1px solid rgba(255,255,255,.58);border-radius:14px;padding:16px 18px;margin-bottom:18px;box-shadow:var(--shadow);backdrop-filter:blur(22px) saturate(150%);-webkit-backdrop-filter:blur(22px) saturate(150%)}
 .summary-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
 .summary h2{margin:2px 0 0;font-size:17px;font-weight:600}
 .eyebrow{color:var(--accent);font-size:10px;font-weight:700;letter-spacing:1px}
@@ -72,7 +78,8 @@ main{flex:1;padding:0 28px 40px}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
 .results{list-style:none;margin:0;padding:0}
-.r{margin:0 0 22px}
+.r{margin:0 0 10px;padding:12px 14px;border:1px solid transparent;border-bottom-color:var(--line);border-radius:10px;transition:background .16s ease,border-color .16s ease}
+.r:hover{background:var(--glass);border-color:var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 .r .site{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
 .r .fav{width:20px;height:20px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font-size:11px;font-weight:600;color:var(--accent)}
 .r .u{color:var(--url);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:520px}
@@ -81,13 +88,19 @@ main{flex:1;padding:0 28px 40px}
 .meta{margin-top:5px;display:flex;flex-wrap:wrap;gap:6px}
 .tag{font-size:12px;background:var(--soft);color:var(--muted);border-radius:10px;padding:1px 9px}
 
-.side .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+.side{display:flex;flex-direction:column;gap:14px}
+.side .card,.web-search{background:var(--glass);border:1px solid rgba(255,255,255,.62);border-radius:14px;padding:16px;box-shadow:var(--shadow);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%)}
+.web-search h2{font-size:16px;margin:3px 0 12px}
+.web-links{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.web-links a{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--glass-strong);font-size:13px}
+.web-links a:hover{border-color:var(--accent);text-decoration:none}
+.web-links span{color:var(--muted)}
 .side h2{margin:0 0 2px;font-size:20px}
 .side .sub{color:var(--muted);font-size:13px;margin-bottom:8px}
 .side img{width:100%;max-height:200px;object-fit:cover;border-radius:10px;margin-bottom:10px}
 .side p{margin:0 0 10px}
 
-footer{color:var(--muted);font-size:12px;text-align:center;padding:16px;border-top:1px solid var(--line)}
+footer{color:var(--muted);font-size:12px;text-align:center;padding:16px;border-top:1px solid var(--line);background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 .skeleton{height:14px;border-radius:7px;background:var(--soft);margin:10px 0}
 
 @media (max-width:980px){
@@ -100,6 +113,10 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:16px;border-t
   body.home .logo span{display:inline}
   main{padding:0 14px 30px}.tabs{padding:0 10px;overflow-x:auto}
   .r .u{max-width:240px}
+  .hero{margin:16px auto 24px}
+  .hero h1{font-size:24px}
+  .chips{gap:7px}
+  .chips button{padding:7px 11px;font-size:13px}
   .summary{padding:14px}
   .summary-head{align-items:flex-start;flex-direction:column;gap:5px}
   .ask-form{align-items:stretch;flex-direction:column}
